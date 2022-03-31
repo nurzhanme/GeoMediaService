@@ -46,6 +46,17 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: .net-app
+          
+      #substitute production appsettings entries to appsettings json file
+      - name: App Settings Variable Substitution
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: '**/appsettings.json'
+        env:
+          Youtube.ClientId: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          Youtube.ClientSecret: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          Insta.Username: ${{ secrets.INSTA_USERNAME }}
+          Insta.Password: ${{ secrets.INSTA_PASSWORD }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
