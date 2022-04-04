@@ -31,7 +31,8 @@ namespace GeoMediaService.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Media(long locationId, InstaLocationTopOrRecent topOrRecent = InstaLocationTopOrRecent.Top)
+        [Route("GetLocationFeeds")]
+        public async Task<IActionResult> GetLocationFeeds(long locationId, InstaLocationTopOrRecent topOrRecent = InstaLocationTopOrRecent.Top)
         {
             await _instaService.Login(_options.Username!, _options.Password!);
             return Ok(await _instaService.GetLocationFeeds(locationId, topOrRecent));
