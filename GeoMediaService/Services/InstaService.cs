@@ -11,7 +11,7 @@ namespace GeoMediaService.Services
 {
     public class InstaService
     {
-        private IInstaApi _instaApi;
+        private IInstaApi? _instaApi;
 
         public async Task<(bool, string)> Login(string username, string password)
         {
@@ -43,7 +43,7 @@ namespace GeoMediaService.Services
                 .SetRequestDelay(RequestDelay.FromSeconds(2, 2))
                 .Build();
 
-            _instaApi.LoadStateDataFromString(sessionData);
+            await _instaApi.LoadStateDataFromStringAsync(sessionData);
 
             if (!_instaApi.IsUserAuthenticated) throw new InstaException("Not Authorized");
         }
