@@ -48,44 +48,42 @@ namespace GeoMediaService.Services
             if (!_instaApi.IsUserAuthenticated) throw new InstaException("Not Authorized");
         }
 
-        public async Task<List<InstaLocationRespoonse>> GetLocationMedia(string place, InstaLocationTopOrRecent topOrRecent)
+        public async Task<IEnumerable<InstaLocationResponse>> SearchLocation(string place)
         {
-            var searchLocation = await _instaApi.LocationProcessor.SearchLocationAsync(0, 0, place);
+            var searchLocation = await _instaApi!.LocationProcessor.SearchLocationAsync(0, 0, place);
             if (!searchLocation.Succeeded)
             {
                 throw new InstaException(searchLocation.Info.Message);
             }
 
-            var result = new List<InstaLocationRespoonse>();
-
-            foreach (var instaLocationShort in searchLocation.Value)
+            return searchLocation.Value.Select(x => new InstaLocationResponse
             {
-                var instaLocationResponse = new InstaLocationRespoonse();
-                instaLocationResponse.ExternalId = instaLocationShort.ExternalId;
-                instaLocationResponse.ExternalSource = instaLocationShort.ExternalSource;
-                instaLocationResponse.Title = instaLocationShort.Name;
+                ExternalId = x.ExternalId,
+                ExternalSource = x.ExternalSource,
+                Title = x.Name
+            });
+        }
+
+        public async Task<IEnumerable<string>> GetLocationFeeds(long locationId, InstaLocationTopOrRecent topOrRecent = InstaLocationTopOrRecent.Top)
+        {
+            IResult<InstaSectionMedia> locationFeed;
                 
-                IResult<InstaSectionMedia> locationFeed;
-                if (topOrRecent == InstaLocationTopOrRecent.Top)
-                {
-                    locationFeed = await _instaApi.LocationProcessor.GetTopLocationFeedsAsync(long.Parse(instaLocationShort.ExternalId), PaginationParameters.MaxPagesToLoad(1));
-                }
-                else
-                {
-                    locationFeed = await _instaApi.LocationProcessor.GetRecentLocationFeedsAsync(long.Parse(instaLocationShort.ExternalId), PaginationParameters.MaxPagesToLoad(1));
-                }
-
-
-                if (!locationFeed.Succeeded)
-                {
-                    continue;
-                }
-
-                instaLocationResponse.PostUrls = locationFeed.Value.Medias.Select(x => $"https://www.instagram.com/p/{x.Code}/");
-                result.Add(instaLocationResponse);
+            if (topOrRecent == InstaLocationTopOrRecent.Top) 
+            { 
+                locationFeed = await _instaApi!.LocationProcessor.GetTopLocationFeedsAsync(locationId, PaginationParameters.MaxPagesToLoad(1));
+            }
+            else
+            {
+                locationFeed = await _instaApi!.LocationProcessor.GetRecentLocationFeedsAsync(locationId, PaginationParameters.MaxPagesToLoad(1));
             }
 
-            return result;
+            if (!locationFeed.Succeeded)
+            {
+                throw new InstaException(locationFeed.Info.Message);
+            }
+
+            return locationFeed.Value.Medias.Select(x => $"https://www.instagram.com/p/{x.Code}/");
         }
+
     }
 }

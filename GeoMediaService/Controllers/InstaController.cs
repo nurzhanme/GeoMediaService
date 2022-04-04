@@ -23,11 +23,18 @@ namespace GeoMediaService.Controllers
         }
 
         [HttpGet]
-        [Route("GetLocationMedia")]
-        public async Task<IActionResult> GetLocationMedia(string place, InstaLocationTopOrRecent topOrRecent)
+        [Route("SearchLocation")]
+        public async Task<IActionResult> SearchLocation(string place)
         {
-            await _instaService.Login(_options.Username, _options.Password);
-            return Ok(await _instaService.GetLocationMedia(place, topOrRecent));
+            await _instaService.Login(_options.Username!, _options.Password!);
+            return Ok(await _instaService.SearchLocation(place));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Media(long locationId, InstaLocationTopOrRecent topOrRecent = InstaLocationTopOrRecent.Top)
+        {
+            await _instaService.Login(_options.Username!, _options.Password!);
+            return Ok(await _instaService.GetLocationFeeds(locationId, topOrRecent));
         }
     }
 }
