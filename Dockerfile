@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Copy csproj and restore as distinct layers
 WORKDIR /src
-COPY ["yapdd.csproj", "./"]
+COPY ["*.csproj", "./"]
 RUN dotnet restore
 
 # Copy everything else and build
